@@ -1,6 +1,6 @@
-; compiler.rkt
-; <insert notes here>
-; 
+; main.rkt
+; runs all the necessary racket code and passed
+; the output to the C section of the compiler
 ; 
 ; created: 09/01/2026
 
@@ -29,4 +29,3 @@
   [(> 0 nesting-balance)
    ((printf "[NESTING] ERROR\n")
     (raise 'unbalanced-right-side-nesting #f))])
-;(parse-ast '())
