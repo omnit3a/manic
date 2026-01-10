@@ -4,7 +4,7 @@
 ; 
 ; created: 09/01/2026
 
-(module parser racket
+(module parser racket  
   (provide generate-ast)
   (define (generate-ast lexemes)
     (if (not (null? lexemes))

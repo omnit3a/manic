@@ -7,7 +7,25 @@
 (module lexer racket
   (require parser-tools/lex)
   (require (prefix-in : parser-tools/lex-sre))
-    
+
+  ; verify that nesting is balanced. returns #t if balanced.
+  ; if nesting is uneven on the left side, return a positive number
+  ; if nesting is uneven on the right side, return a negative number
+  (provide lexer-verify-nesting)
+  (define (lexer-verify-nesting lexemes)
+    (define nest-sum 0)
+    (for ([i (in-range (length lexemes))])
+      (cond
+        [(or (or (equal? 'LPAR (car (list-ref lexemes i)))
+                 (equal? 'RPAR (car (list-ref lexemes i))))
+             (or (equal? 'LBRACE (car (list-ref lexemes i)))
+                 (equal? 'RBRACE (car (list-ref lexemes i)))))
+         (set! nest-sum (+ nest-sum (car (cdr (list-ref lexemes i)))))])
+      )
+    (if (eq? 0 nest-sum)
+        #t
+        `,nest-sum))
+  
   (provide lex)
   (define (lex input)
     ; grammar
@@ -81,19 +99,19 @@
     (define (strip-last-char str)
       (list->string (reverse (cdr (reverse (string->list str))))))
 
-    (define paren-depth 0)
-    (define brace-depth 0)
-    (define prev-paren-depth 0)
-    (define prev-brace-depth 0)
+    (define paren-depth 1)
+    (define brace-depth 1)
+    (define prev-paren-depth 1)
+    (define prev-brace-depth 1)
 
     (define (renumber-paren depth)
       (set! paren-depth depth)
-      (set! prev-paren-depth (- depth 1))
+      (set! prev-paren-depth (max 1 (- depth 1)))
       `,prev-paren-depth)
 
     (define (renumber-brace depth)
       (set! brace-depth depth)
-      (set! prev-brace-depth (- depth 1))
+      (set! prev-brace-depth (max 1 (- depth 1)))
       `,prev-brace-depth)
     
     (define interior-lex      
@@ -108,7 +126,7 @@
               (interior-lex input-port))]
        
        [rpar
-        (cons `(RPAR ,prev-paren-depth)
+        (cons `(RPAR ,(* -1 prev-paren-depth))
               (handle-paren input-port))]
        
        [lbrace
@@ -116,7 +134,7 @@
               (interior-lex input-port))]
        
        [rbrace
-        (cons `(RBRACE ,prev-brace-depth)
+        (cons `(RBRACE ,(* -1 prev-brace-depth))
               (handle-brace input-port))]
        
        ; integers

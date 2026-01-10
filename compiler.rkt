@@ -18,5 +18,15 @@
 (define paren-test
   "()(())((()))")
 
-(generate-ast (lex paren-test))
+(define lexer-output (lex string-to-parse))
+(define nesting-balance (lexer-verify-nesting lexer-output))
+(cond
+  [(eq? #t nesting-balance)
+   (printf "[NESTING] PASSED\n")]
+  [(< 0 nesting-balance)
+   ((printf "[NESTING] ERROR\n")
+    (raise 'unbalanced-left-side-nesting #f))]
+  [(> 0 nesting-balance)
+   ((printf "[NESTING] ERROR\n")
+    (raise 'unbalanced-right-side-nesting #f))])
 ;(parse-ast '())
