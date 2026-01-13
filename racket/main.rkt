@@ -10,7 +10,7 @@
 (require "lexer.rkt")
 
 (define string-to-parse
-    "add: num (x: imut num, y: imut num) {
+    "add: func num (x: imut num y: imut num) {
        a : fixed <- 10
        return x+y
      }")
@@ -18,14 +18,16 @@
 (define paren-test
   "()(())((()))")
 
-(define lexer-output (lex string-to-parse))
-(define nesting-balance (lexer-verify-nesting lexer-output))
-(cond
-  [(eq? #t nesting-balance)
-   (printf "[NESTING] PASSED\n")]
-  [(< 0 nesting-balance)
-   ((printf "[NESTING] ERROR\n")
-    (raise 'unbalanced-left-side-nesting #f))]
-  [(> 0 nesting-balance)
-   ((printf "[NESTING] ERROR\n")
-    (raise 'unbalanced-right-side-nesting #f))])
+(define var-decl-test
+  "a: num
+   b: num <- 10
+   c: float
+   d: float <- 10.0
+   e: fixed
+   f: fixed <- 10.0f
+   g: bool
+   h: bool <- true")
+
+(define lexer-output (lex string-to-parse)
+(lexer-verify-nesting lexer-output)
+;(generate-ast lexer-output 0)
