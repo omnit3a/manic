@@ -22,9 +22,14 @@
                  (equal? 'RBRACE (car (list-ref lexemes i)))))
          (set! nest-sum (+ nest-sum (car (cdr (list-ref lexemes i)))))])
       )
-    (if (eq? 0 nest-sum)
-        #t
-        `,nest-sum))
+    (cond
+      [(= 0 nest-sum)
+       ((printf "[NESTING] PASSED\n")
+        #t)]
+      [(< 0 nest-sum)
+       (raise 'unbalanced-left-side-nesting #f)]
+      [(> 0 nest-sum)
+       (raise 'unbalanced-right-side-nesting #f)]))
   
   (provide lex)
   (define (lex input)
@@ -70,7 +75,7 @@
        (union "+" "-" "*" "/")]
 
       [qualifier
-       (union "imut")]
+       (union "imut" "func")]
       
       [assignment
        "<-"]
